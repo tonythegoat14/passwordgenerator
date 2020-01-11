@@ -1,0 +1,140 @@
+<html>
+
+<head>
+    <link rel=" stylesheet " href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css " integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh " crossorigin="anonymous ">">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://unpkg.com/clipboard@1.5.15/dist/clipboard.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+        var charTypes = {
+            'upper': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            'lower': 'abcdefghijklmnopqrstuvwxyz',
+            'number': '0123456789',
+            'special': '!$%^&*()-=+[]{};#:@~,./<>?'
+        };
+
+        window.onload = function() {
+            var inputs = document.querySelectorAll('form div input[type=text]');
+            for (var i = 0; i < inputs.length; i++) {
+                var input = inputs[i];
+                var div = input.parentNode;
+
+                var type = div.id;
+                input.value = charTypes[type];
+                input.size = 40;
+
+                var anchor = div.querySelector('a');
+                anchor.onclick = function(input, type) {
+                    return function() {
+                        input.value = charTypes[type];
+                        return false;
+                    };
+                }(input, type);
+            }
+        }
+
+        function _generatePassword(passwordLength, charBlocks) {
+            var allChars = "";
+            for (var i = 0; i < charBlocks.length; i++) {
+                allChars += charBlocks[i];
+            }
+            var numChars = allChars.length;
+            var password = "";
+            for (var i = 1; i <= passwordLength; i++) {
+                password += allChars.charAt(Math.floor(Math.random() * numChars));
+            }
+            return password;
+        }
+
+        function generatePassword(passwordLength) {
+            var charBlocks = [];
+            for (id in charTypes) {
+                var isTicked = document.querySelector('div#' + id + ' input[type=checkbox]').checked;
+                var value = document.querySelector('div#' + id + ' input[type=text]').value;
+                if (isTicked) {
+                    charBlocks.push(value);
+                }
+            }
+
+            var $length = document.getElementById('length');
+            var passwordLength = parseInt($length.value)
+
+            var password = _generatePassword(passwordLength, charBlocks);
+            var $display = document.getElementById('display-password');
+            $display.textContent = password;
+        }
+    </script>
+    <style type="text/css">
+        p#display-password {
+            font-family: monospace;
+        }
+        
+        p.disclaimer {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="outer" title=" ">
+        <form>
+            <div id="upper">
+                <input type="checkbox" checked><input type="text">
+                <span>  <a href="#">reset</a></span>
+            </div>
+            <div id="lower">
+                <input type="checkbox" checked><input type="text">
+                <span>  <a href="#">reset</a></span>
+            </div>
+            <div id="number">
+                <input type="checkbox" checked><input type="text">
+                <span>  <a href="#">reset</a></span>
+            </div>
+            <div id="special">
+                <input type="checkbox" checked><input type="text">
+                <span>  <a href="#">reset</a></span>
+            </div>
+            <br /> Length: <input id="length" type="text" value="50"><br />
+            <input type="submit" value="Generate" onclick="generatePassword(); return false;">
+        </form>
+        <p id="display-password"></p>
+        <button class="copy-button" data-clipboard-target="#display-password">
+				<i class="fa fa-clipboard" aria-hidden="true"></i>
+			</button>
+        <hr />
+
+    </div>
+    <script type="text/javascript">
+        var buttonSelector = '.copy-button';
+        var elem = $('div.outer');
+        elem.tooltip({
+            disabled: true,
+            position: {
+                of: buttonSelector
+            }
+        });
+
+        function showTooltip(message) {
+            elem.tooltip("option", "content", message);
+            elem.tooltip("enable");
+            elem.tooltip("open");
+            setTimeout(function() {
+                elem.tooltip("close");
+                elem.tooltip("disable");
+            }, 2000)
+        }
+
+        var clipboard = new Clipboard(buttonSelector);
+        clipboard.on('success', function(e) {
+            showTooltip("Copied.");
+            e.clearSelection();
+        });
+        clipboard.on('error', function(e) {
+            showTooltip("Press Ctrl+C to copy");
+        });
+    </script>
+</body>
+
+</html>
